@@ -1,7 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 import Booking from "../models/Booking.ts";
+import User from "../models/User.ts";
 
 import AppError from "../utils/apperror.ts";
 import { issueToken } from "../utils/jwt.ts";
@@ -19,6 +21,7 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
             return next(new AppError("Missing required fields", 400));
         }
 
+        // Check date-time validity
         const start = new Date(startTime);
         const end = new Date(endTime);
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
@@ -29,6 +32,7 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
             return next(new AppError("endTime must be after startTime", 400));
         }
 
+        // Check for intersection with other bookings
         const conflict = await Booking.findOne({
             barber: barberId,
             serviceDate: new Date(serviceDate),
@@ -39,6 +43,16 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
         });
         if (conflict) return next(new AppError("Time slot already booked", 400));
 
+        // Check barber credentials
+        const barber = await User.findById(barberId).select("role");
+
+        if (!barber) {
+            return next(new AppError("Barber not found", 404));
+        }
+
+        if (barber.role !== "barber") {
+            return next(new AppError("Selected user is not a barber", 400));
+        }
 
         // Create booking
         const booking = await Booking.create({
@@ -104,7 +118,8 @@ export const getBookingById = async (req: Request, res: Response, next: NextFunc
 
         // Check if user is the owner or a barber involved
         if (booking.user._id.toString() !== req.user.id.toString() &&
-            booking.barber._id.toString() !== req.user.id.toString()) {
+            booking.barber._id.toString() !== req.user.id.toString() &&
+            req.user.role !== "admin") {
             return next(new AppError("You don't have permission to view this booking", 403));
         }
 
@@ -133,7 +148,7 @@ export const changeBooking = async (req: Request, res: Response, next: NextFunct
         }
 
         // Check if user is the owner
-        if (booking.user.toString() !== req.user.id.toString()) {
+        if (booking.user.toString() !== req.user.id.toString() && req.user.role !== "admin") {
             return next(new AppError("You don't have permission to update this booking", 403));
         }
 
@@ -172,7 +187,7 @@ export const deleteBooking = async (req: Request, res: Response, next: NextFunct
         }
 
         // Check if user is the owner
-        if (booking.user.toString() !== req.user.id.toString()) {
+        if (booking.user.toString() !== req.user.id.toString() && req.user.role !== "admin") {
             return next(new AppError("You don't have permission to delete this booking", 403));
         }
 
