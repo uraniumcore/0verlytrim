@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - 0verlytrim</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            color: #254F22;
+            background-color: #EDE4C2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #254F22;
+            padding: 0;
+            border-bottom: 3px solid #A03A13;
+        }
+
+        nav {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 1.8rem 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: normal;
+            color: #EDE4C2;
+            font-style: italic;
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 3rem;
+            align-items: baseline;
+        }
+
+        nav a {
+            color: #EDE4C2;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: normal;
+            transition: color 0.3s;
+            border-bottom: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: #F5824A;
+            border-bottom: 1px solid #F5824A;
+        }
+
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 20px;
+        }
+
+        .login-box {
+            background-color: transparent;
+            border: 2px solid #A03A13;
+            padding: 3rem 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 30px;
+            width: 60px;
+            height: 2px;
+            background-color: #F5824A;
+        }
+
+        .login-title {
+            font-size: 2.5rem;
+            color: #254F22;
+            font-weight: normal;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #A03A13;
+            margin-bottom: 2.5rem;
+            font-size: 0.95rem;
+        }
+
+        .error-message {
+            background-color: rgba(160, 58, 19, 0.1);
+            border-left: 3px solid #A03A13;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #A03A13;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.6rem;
+            color: #A03A13;
+            font-weight: normal;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #A03A13;
+            background-color: #EDE4C2;
+            color: #254F22;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #F5824A;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(37, 79, 34, 0.4);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .forgot-password a {
+            color: #A03A13;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .forgot-password a:hover {
+            color: #F5824A;
+            border-bottom: 1px solid #F5824A;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background-color: #254F22;
+            border: 2px solid #254F22;
+            color: #EDE4C2;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-login:hover {
+            background-color: #F5824A;
+            border-color: #F5824A;
+        }
+
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .register-link {
+            text-align: center;
+            color: #254F22;
+            font-size: 0.95rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(37, 79, 34, 0.2);
+        }
+
+        .register-link a {
+            color: #A03A13;
+            text-decoration: none;
+            border-bottom: 1px solid #A03A13;
+            transition: all 0.3s;
+        }
+
+        .register-link a:hover {
+            color: #F5824A;
+            border-bottom: 1px solid #F5824A;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            color: #A03A13;
+            margin-top: 1rem;
+        }
+
+        footer {
+            background-color: #254F22;
+            color: #EDE4C2;
+            text-align: center;
+            padding: 2rem 20px;
+            border-top: 2px solid #A03A13;
+        }
+
+        footer p {
+            color: #EDE4C2;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            nav ul {
+                gap: 2rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .login-box {
+                padding: 2rem 1.5rem;
+            }
+
+            .login-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">0verlytrim</a>
+            <ul>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="login-container">
+        <div class="login-box">
+            <h1 class="login-title">Welcome Back</h1>
+            <p class="login-subtitle">Login to manage your appointments</p>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="your.email@example.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password"
+                        required
+                        minlength="6"
+                    >
+                </div>
+
+                <div class="forgot-password">
+                    <a href="/forgot-password.html">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    Login
+                </button>
+
+                <div class="loading-spinner" id="loadingSpinner">
+                    Logging in...
+                </div>
+            </form>
+
+            <div class="register-link">
+                Don't have an account? <a href="/register">Register here</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 0verlytrim. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const API_BASE_URL = '/api';
+        const LOGIN_ENDPOINT = `${API_BASE_URL}/auth/login`; // Update this to your login endpoint
+        const PROFILE_PAGE = '/profile';
+        const HOME_PAGE = '/';
+
+        // Check if user is already logged in
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // User already logged in, redirect to profile or home
+                window.location.href = PROFILE_PAGE;
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        // Hide error message
+        function hideError() {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.style.display = 'none';
+        }
+
+        // Handle login form submission
+        async function handleLogin(event) {
+            event.preventDefault();
+            hideError();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            // Disable button and show loading
+            loginBtn.disabled = true;
+            loadingSpinner.style.display = 'block';
+
+            try {
+                const response = await fetch(LOGIN_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                // Store JWT token
+                // Adjust based on your API response structure
+                // Common formats: data.token, data.accessToken, data.data.token
+                const token = data.token || data.accessToken || data.data?.token;
+                
+                if (!token) {
+                    throw new Error('No token received from server');
+                }
+
+                localStorage.setItem('token', token);
+
+                // Optional: Store user info
+                if (data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                }
+
+                // Redirect to profile page
+                window.location.href = PROFILE_PAGE;
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(error.message || 'Invalid email or password. Please try again.');
+                
+                // Re-enable button and hide loading
+                loginBtn.disabled = false;
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
+
+        // Clear error on input change
+        document.getElementById('email').addEventListener('input', hideError);
+        document.getElementById('password').addEventListener('input', hideError);
+    </script>
+</body>
+</html>

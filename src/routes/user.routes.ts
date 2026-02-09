@@ -1,8 +1,8 @@
 import express from "express";
 
-import { getProfile, updateProfile } from "../controllers/user.controller.ts";
+import { getProfile, updateProfile, updatePassword, getAllSpecialists, createSpecialist, getMyBookings } from "../controllers/user.controller.ts";
 
-import { verifyToken } from "../middleware/auth.middleware.ts";
+import { verifyToken, adminOnly } from "../middleware/auth.middleware.ts";
 
 const userRoutes = express.Router();
 
@@ -11,5 +11,17 @@ userRoutes.get("/profile", verifyToken, getProfile);
 
 // Update Profile
 userRoutes.put("/profile", verifyToken, updateProfile);
+
+// Update Password
+userRoutes.put("/update-password", verifyToken, updatePassword);
+
+// My Bookings
+userRoutes.get("/myBookings", verifyToken, getMyBookings);
+
+// публичный
+userRoutes.get("/specialist", getAllSpecialists);
+
+// admin
+userRoutes.post("/specialist", verifyToken, adminOnly, createSpecialist);
 
 export default userRoutes;

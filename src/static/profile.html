@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - 0verlytrim</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            color: #254F22;
+            background-color: #EDE4C2;
+        }
+
+        header {
+            background-color: #254F22;
+            padding: 0;
+            position: relative;
+            border-bottom: 3px solid #A03A13;
+        }
+
+        nav {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 1.8rem 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: normal;
+            color: #EDE4C2;
+            font-style: italic;
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 3rem;
+            align-items: baseline;
+        }
+
+        nav a {
+            color: #EDE4C2;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: normal;
+            transition: color 0.3s;
+            border-bottom: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: #F5824A;
+            border-bottom: 1px solid #F5824A;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 30px;
+        }
+
+        .page-title {
+            margin-bottom: 3rem;
+            font-size: 2.8rem;
+            color: #254F22;
+            font-weight: normal;
+            font-style: italic;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background-color: #A03A13;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 0;
+            color: #A03A13;
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            background-color: rgba(160, 58, 19, 0.1);
+            border-left: 3px solid #A03A13;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            color: #A03A13;
+        }
+
+        .success-message {
+            background-color: rgba(37, 79, 34, 0.1);
+            border-left: 3px solid #254F22;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            color: #254F22;
+        }
+
+        .profile-section {
+            background-color: transparent;
+            border: 2px solid #A03A13;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .profile-section::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 20px;
+            width: 50px;
+            height: 2px;
+            background-color: #F5824A;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #254F22;
+            font-weight: normal;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(37, 79, 34, 0.2);
+        }
+
+        .info-label {
+            color: #A03A13;
+            font-weight: normal;
+            min-width: 150px;
+        }
+
+        .info-value {
+            color: #254F22;
+            flex: 1;
+            text-align: right;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            background-color: #254F22;
+            color: #EDE4C2;
+            font-size: 0.85rem;
+            border: 1px solid #A03A13;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #A03A13;
+            font-weight: normal;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #A03A13;
+            background-color: #EDE4C2;
+            color: #254F22;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #F5824A;
+        }
+
+        .form-group input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.9rem 2.2rem;
+            border: 2px solid #A03A13;
+            background-color: transparent;
+            color: #A03A13;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #F5824A;
+            border-color: #F5824A;
+            color: #EDE4C2;
+        }
+
+        .btn-primary {
+            background-color: #254F22;
+            border-color: #254F22;
+            color: #EDE4C2;
+        }
+
+        .btn-primary:hover {
+            background-color: #F5824A;
+            border-color: #F5824A;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-logout {
+            background-color: transparent;
+            border-color: #A03A13;
+            color: #A03A13;
+        }
+
+        .btn-logout:hover {
+            background-color: #A03A13;
+            color: #EDE4C2;
+        }
+
+        /* Bookings Section */
+        .bookings-loading {
+            text-align: center;
+            color: #A03A13;
+            padding: 2rem 0;
+        }
+
+        .bookings-empty {
+            text-align: center;
+            color: #A03A13;
+            padding: 3rem 0;
+            font-style: italic;
+        }
+
+        .booking-item {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(37, 79, 34, 0.2);
+        }
+
+        .booking-item:last-child {
+            border-bottom: none;
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1rem;
+        }
+
+        .booking-service {
+            font-size: 1.3rem;
+            color: #254F22;
+            font-weight: normal;
+        }
+
+        .booking-status {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            border: 1px solid;
+        }
+
+        .booking-status.pending {
+            color: #F5824A;
+            border-color: #F5824A;
+            background-color: rgba(245, 130, 74, 0.1);
+        }
+
+        .booking-status.confirmed {
+            color: #254F22;
+            border-color: #254F22;
+            background-color: rgba(37, 79, 34, 0.1);
+        }
+
+        .booking-status.completed {
+            color: #A03A13;
+            border-color: #A03A13;
+            background-color: rgba(160, 58, 19, 0.1);
+        }
+
+        .booking-status.cancelled {
+            color: #A03A13;
+            border-color: #A03A13;
+            opacity: 0.6;
+        }
+
+        .booking-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            color: #254F22;
+        }
+
+        .booking-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .booking-detail-label {
+            color: #A03A13;
+            font-size: 0.85rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .booking-detail-value {
+            color: #254F22;
+        }
+
+        .booking-item {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .booking-item:hover {
+            background-color: rgba(245, 130, 74, 0.05);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(37, 79, 34, 0.8);
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background-color: #EDE4C2;
+            border: 3px solid #A03A13;
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            padding: 3rem 2.5rem;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 30px;
+            width: 60px;
+            height: 2px;
+            background-color: #F5824A;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: transparent;
+            border: 2px solid #A03A13;
+            color: #A03A13;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
+        }
+
+        .modal-close:hover {
+            background-color: #A03A13;
+            color: #EDE4C2;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: #254F22;
+            font-weight: normal;
+            font-style: italic;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #A03A13;
+        }
+
+        .modal-loading {
+            text-align: center;
+            padding: 3rem 0;
+            color: #A03A13;
+        }
+
+        .modal-error {
+            background-color: rgba(160, 58, 19, 0.1);
+            border-left: 3px solid #A03A13;
+            padding: 1.5rem;
+            color: #A03A13;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .detail-section-title {
+            font-size: 1.3rem;
+            color: #A03A13;
+            font-weight: normal;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .detail-item-label {
+            color: #A03A13;
+            font-size: 0.9rem;
+        }
+
+        .detail-item-value {
+            color: #254F22;
+            font-size: 1.1rem;
+        }
+
+        .detail-item-value.large {
+            font-size: 1.5rem;
+            color: #254F22;
+        }
+
+        #editForm,
+        #passwordForm {
+            display: none;
+        }
+
+        footer {
+            background-color: #254F22;
+            color: #EDE4C2;
+            text-align: center;
+            padding: 2.5rem 20px;
+            border-top: 2px solid #A03A13;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            color: #EDE4C2;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            nav ul {
+                gap: 2rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .info-value {
+                text-align: left;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .profile-section {
+                padding: 1.5rem;
+            }
+
+            .booking-header {
+                flex-direction: column;
+                gap: 0.8rem;
+                align-items: flex-start;
+            }
+
+            .booking-details {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .modal-close {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">0verlytrim</a>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/#services">Services</a></li>
+                <li><a href="/#specialists">Specialists</a></li>
+                <li><a href="/book">Book Now</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">My Profile</h1>
+
+        <div id="loadingState" class="loading">
+            Loading your profile...
+        </div>
+
+        <div id="errorState" style="display: none;">
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div id="successMessage" style="display: none;" class="success-message"></div>
+
+        <div id="profileContent" style="display: none;">
+            <!-- Profile View -->
+            <div id="profileView" class="profile-section">
+                <h2 class="section-title">Account Information</h2>
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="info-label">Name</span>
+                        <span class="info-value" id="displayName">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value" id="displayEmail">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Role</span>
+                        <span class="info-value">
+                            <span class="role-badge" id="displayRole">-</span>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Member Since</span>
+                        <span class="info-value" id="displayDate">-</span>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="showEditForm()">Edit Profile</button>
+                    <button class="btn" onclick="showPasswordForm()">Change Password</button>
+                    <button class="btn btn-logout" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Edit Profile Form -->
+            <div id="editForm" class="profile-section">
+                <h2 class="section-title">Edit Profile</h2>
+                <form onsubmit="updateProfile(event)">
+                    <div class="form-group">
+                        <label for="editName">Name</label>
+                        <input type="text" id="editName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" id="editEmail" required>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password Form -->
+            <div id="passwordForm" class="profile-section">
+                <h2 class="section-title">Change Password</h2>
+                <form onsubmit="changePassword(event)">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" required minlength="6">
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                        <button type="button" class="btn" onclick="cancelPasswordChange()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bookings Section -->
+            <div class="profile-section">
+                <h2 class="section-title">My Bookings</h2>
+                <div id="bookingsList">
+                    <!-- Bookings will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Details Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+            <h2 class="modal-title">Booking Details</h2>
+            <div id="modalContent">
+                <!-- Booking details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 0verlytrim. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const API_BASE_URL = '/api';
+        const PROFILE_ENDPOINT = `${API_BASE_URL}/users/profile`;
+        const BOOKINGS_ENDPOINT = `${API_BASE_URL}/booking`;
+        const LOGIN_PAGE = '/login'; // Change this to your login page URL
+
+        let userData = null;
+
+        // Get JWT token from localStorage
+        function getToken() {
+            return localStorage.getItem('token'); // or sessionStorage.getItem('token')
+        }
+
+        // Set JWT token
+        function setToken(token) {
+            localStorage.setItem('token', token);
+        }
+
+        // Remove JWT token
+        function removeToken() {
+            localStorage.removeItem('token');
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(() => {
+                successEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            const errorState = document.getElementById('errorState');
+            errorEl.textContent = message;
+            errorState.style.display = 'block';
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            const token = getToken();
+            
+            if (!token) {
+                window.location.href = LOGIN_PAGE;
+                return;
+            }
+
+            try {
+                const response = await fetch(PROFILE_ENDPOINT, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401) {
+                    // Token invalid or expired
+                    removeToken();
+                    window.location.href = LOGIN_PAGE;
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to load profile');
+                }
+
+                const data = await response.json();
+                userData = data;
+                
+                displayProfile(data);
+                
+                // Hide loading, show content
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('profileContent').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('loadingState').style.display = 'none';
+                showError('Failed to load profile. Please try again.');
+            }
+        }
+
+        // Display profile data
+        function displayProfile(data) {
+            document.getElementById('displayName').textContent = data.name;
+            document.getElementById('displayEmail').textContent = data.email;
+            document.getElementById('displayRole').textContent = data.role;
+            
+            // Format date
+            const date = new Date(data.date);
+            const formattedDate = date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('displayDate').textContent = formattedDate;
+        }
+
+        // Load user bookings
+        async function loadBookings() {
+            const bookingsList = document.getElementById('bookingsList');
+            const token = getToken();
+
+            try {
+                // Show loading state
+                bookingsList.innerHTML = '<div class="bookings-loading">Loading your bookings...</div>';
+
+                const response = await fetch(BOOKINGS_ENDPOINT, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401) {
+                    removeToken();
+                    window.location.href = LOGIN_PAGE;
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to load bookings');
+                }
+
+                const data = await response.json();
+                const bookings = data.data;
+                // Clear loading state
+                bookingsList.innerHTML = '';
+
+                if (!bookings || bookings.length === 0) {
+                    bookingsList.innerHTML = '<div class="bookings-empty">No bookings yet. Book your first service!</div>';
+                    return;
+                }
+
+                // Render bookings
+                // Expected API response format:
+                // [{ 
+                //   id: 1, 
+                //   service: "Haircut", 
+                //   date: "2026-02-15T10:00:00Z", 
+                //   specialist: "Marcus Johnson",
+                //   status: "confirmed",
+                //   price: 35
+                // }, ...]
+                console.log(bookings);
+                bookings.forEach(booking => {
+                    const bookingItem = document.createElement('div');
+                    bookingItem.className = 'booking-item';
+                    bookingItem.onclick = () => openBookingDetails(booking._id || booking.id);
+
+                    // Format date and time
+                    const bookingDate = new Date(booking.serviceDate);
+                    const formattedDate = bookingDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    const startTime = new Date(booking.startTime);
+                    const formattedTime = startTime.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    // Determine status class
+                    const statusClass = booking.status ? booking.status.toLowerCase() : 'booked';
+                    const statusDisplay = booking.status || 'Booked';
+
+                    // Get service and specialist names (they might be populated objects or strings)
+                    const serviceName = booking.service
+                        ? (typeof booking.service === 'object' ? (booking.service.title || booking.service.name || '') : booking.service)
+                        : '';
+
+                    const specialistName = booking.specialist
+                        ? (typeof booking.specialist === 'object'
+                            ? (booking.specialist.user?.name || booking.specialist.name || booking.specialist.title || '')
+                            : booking.specialist)
+                        : '';
+
+                    bookingItem.innerHTML = `
+                        <div class="booking-header">
+                            <div class="booking-service">${serviceName || 'Service'}</div>
+                            <div class="booking-status ${statusClass}">${statusDisplay}</div>
+                        </div>
+                        <div class="booking-details">
+                            <div class="booking-detail">
+                                <span class="booking-detail-label">Date</span>
+                                <span class="booking-detail-value">${formattedDate}</span>
+                            </div>
+                            <div class="booking-detail">
+                                <span class="booking-detail-label">Time</span>
+                                <span class="booking-detail-value">${formattedTime}</span>
+                            </div>
+                            ${specialistName ? `
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Specialist</span>
+                                    <span class="booking-detail-value">${specialistName}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+
+                    bookingsList.appendChild(bookingItem);
+                });
+
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                bookingsList.innerHTML = '<div class="bookings-empty">Failed to load bookings. Please try again.</div>';
+            }
+        }
+
+        // Open booking details modal
+        async function openBookingDetails(bookingId) {
+            const modal = document.getElementById('bookingModal');
+            const modalContent = document.getElementById('modalContent');
+            const token = getToken();
+
+            // Show modal
+            modal.classList.add('active');
+
+            try {
+                // Show loading state
+                modalContent.innerHTML = '<div class="modal-loading">Loading booking details...</div>';
+
+                const response = await fetch(`${BOOKINGS_ENDPOINT}/${bookingId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401) {
+                    removeToken();
+                    window.location.href = LOGIN_PAGE;
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to load booking details');
+                }
+
+                const payload = await response.json();
+                const booking = payload.data;
+
+                // Display booking details
+                displayBookingDetails(booking);
+
+            } catch (error) {
+                console.error('Error loading booking details:', error);
+                modalContent.innerHTML = '<div class="modal-error">Failed to load booking details. Please try again.</div>';
+            }
+        }
+
+        // Display booking details in modal
+        function displayBookingDetails(booking) {
+            const modalContent = document.getElementById('modalContent');
+
+            // Format dates and times
+            const serviceDate = new Date(booking.serviceDate);
+            const startTime = new Date(booking.startTime);
+            const endTime = new Date(booking.endTime);
+            const createdAt = new Date(booking.createdAt);
+
+            const formattedDate = serviceDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const formattedStartTime = startTime.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const formattedEndTime = endTime.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const formattedCreatedAt = createdAt.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Calculate duration
+            const durationMs = endTime - startTime;
+            const durationMinutes = Math.round(durationMs / 60000);
+
+            // Get service, specialist details (they might be populated)
+            const serviceName = booking.service
+                ? (typeof booking.service === 'object' ? (booking.service.title || booking.service.name || '') : booking.service)
+                : '';
+            const serviceDescription = booking.service && typeof booking.service === 'object'
+                ? (booking.service.description || '')
+                : '';
+            const servicePrice = booking.service && typeof booking.service === 'object' ? booking.service.price : null;
+
+            const specialistName = booking.specialist
+                ? (typeof booking.specialist === 'object'
+                    ? (booking.specialist.user?.name || booking.specialist.name || booking.specialist.title || '')
+                    : booking.specialist)
+                : '';
+            const specialistEmail = booking.specialist && typeof booking.specialist === 'object'
+                ? (booking.specialist.user?.email || booking.specialist.email || '')
+                : '';
+            const specialistClass = booking.specialist && typeof booking.specialist === 'object'
+                ? (booking.specialist.class || '')
+                : '';
+
+            const userName = booking.user && typeof booking.user === 'object' ? (booking.user.name || '') : '';
+            const userEmail = booking.user && typeof booking.user === 'object' ? (booking.user.email || '') : '';
+
+            // Status display
+            const statusClass = booking.status.toLowerCase();
+            const statusDisplay = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+
+            modalContent.innerHTML = `
+                <div class="detail-section">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-item-label">Status</span>
+                            <span class="booking-status ${statusClass}" style="display: inline-block; margin-top: 0.5rem;">${statusDisplay}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item-label">Booked On</span>
+                            <span class="detail-item-value">${formattedCreatedAt}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Service Information</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-item-label">Service</span>
+                            <span class="detail-item-value large">${serviceName}</span>
+                        </div>
+                        ${serviceDescription ? `
+                            <div class="detail-item" style="grid-column: 1 / -1;">
+                                <span class="detail-item-label">Description</span>
+                                <span class="detail-item-value">${serviceDescription}</span>
+                            </div>
+                        ` : ''}
+                        ${servicePrice ? `
+                            <div class="detail-item">
+                                <span class="detail-item-label">Price</span>
+                                <span class="detail-item-value large">$${servicePrice}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Appointment Details</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-item-label">Date</span>
+                            <span class="detail-item-value">${formattedDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item-label">Time</span>
+                            <span class="detail-item-value">${formattedStartTime} - ${formattedEndTime}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item-label">Duration</span>
+                            <span class="detail-item-value">${durationMinutes} minutes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Specialist</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-item-label">Name</span>
+                            <span class="detail-item-value">${specialistName}</span>
+                        </div>
+                        ${specialistClass ? `
+                            <div class="detail-item">
+                                <span class="detail-item-label">Title</span>
+                                <span class="detail-item-value">${specialistClass}</span>
+                            </div>
+                        ` : ''}
+                        ${specialistEmail ? `
+                            <div class="detail-item">
+                                <span class="detail-item-label">Contact</span>
+                                <span class="detail-item-value">${specialistEmail}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Close booking modal
+        function closeBookingModal() {
+            const modal = document.getElementById('bookingModal');
+            modal.classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('bookingModal');
+            if (event.target === modal) {
+                closeBookingModal();
+            }
+        }
+
+        // Show edit form
+        function showEditForm() {
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('editForm').style.display = 'block';
+            document.getElementById('passwordForm').style.display = 'none';
+            
+            // Populate form
+            document.getElementById('editName').value = userData.name;
+            document.getElementById('editEmail').value = userData.email;
+        }
+
+        // Cancel edit
+        function cancelEdit() {
+            document.getElementById('profileView').style.display = 'block';
+            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Update profile
+        async function updateProfile(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('editName').value;
+            const email = document.getElementById('editEmail').value;
+            const token = getToken();
+
+            try {
+                const response = await fetch(PROFILE_ENDPOINT, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email })
+                });
+
+                if (response.status === 401) {
+                    removeToken();
+                    window.location.href = LOGIN_PAGE;
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to update profile');
+                }
+
+                const updatedData = await response.json();
+                userData = updatedData;
+                
+                displayProfile(updatedData);
+                cancelEdit();
+                showSuccess('Profile updated successfully!');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showError(error.message || 'Failed to update profile. Please try again.');
+            }
+        }
+
+        // Show password form
+        function showPasswordForm() {
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('passwordForm').style.display = 'block';
+            
+            // Clear form
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        // Cancel password change
+        function cancelPasswordChange() {
+            document.getElementById('profileView').style.display = 'block';
+            document.getElementById('passwordForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Change password
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showError('New passwords do not match!');
+                return;
+            }
+
+            const token = getToken();
+
+            try {
+                // Update the endpoint if you have a separate password change endpoint
+                const response = await fetch(`${API_BASE_URL}/users/update-password`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        password: newPassword 
+                    })
+                });
+
+                if (response.status === 401) {
+                    removeToken();
+                    window.location.href = LOGIN_PAGE;
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to change password');
+                }
+
+                cancelPasswordChange();
+                showSuccess('Password changed successfully!');
+                
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showError(error.message || 'Failed to change password. Please try again.');
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                removeToken();
+                window.location.href = LOGIN_PAGE;
+            }
+        }
+
+        // Load profile on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            loadBookings();
+        });
+    </script>
+</body>
+</html>

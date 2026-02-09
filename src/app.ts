@@ -1,6 +1,9 @@
 import express from "express";
 import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from 'url';
 
+import pagesRoutes from "./routes/pages.routes.ts";
 import authRoutes from "./routes/auth.routes.ts";
 import userRoutes from "./routes/user.routes.ts";
 import bookingRoutes from "./routes/booking.routes.ts"
@@ -13,6 +16,9 @@ const app = express();
 // global middleware
 app.use(express.json());
 app.use(morgan('dev'));
+
+// static
+app.use("/", pagesRoutes);
 
 // routes
 app.use("/api/auth", authRoutes);

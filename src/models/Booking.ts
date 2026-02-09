@@ -11,9 +11,9 @@ const bookingSchema = new mongoose.Schema({
         ref: 'Service',
         required: true
     },
-    barber: {
+    specialist: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Specialist',
         required: true
     },
     serviceDate: { type: Date, required: true },

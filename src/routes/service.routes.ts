@@ -10,10 +10,10 @@ const serviceRoutes = express.Router();
 serviceRoutes.post("/", verifyToken, adminOnly, createService);
 
 // Get all bookings
-serviceRoutes.get("/", verifyToken, adminOnly, getAllServices);
+serviceRoutes.get("/", getAllServices);
 
 // Get specific booking
-serviceRoutes.get("/:id", verifyToken, adminOnly, getServiceById);
+serviceRoutes.get("/:id", getServiceById);
 
 // Change booking
 serviceRoutes.put("/:id", verifyToken, adminOnly, updateService);

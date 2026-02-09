@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0verlytrim - Premium Barbershop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            color: #254F22;
+            background-color: #EDE4C2;
+        }
+
+        header {
+            background-color: #254F22;
+            padding: 0;
+            position: relative;
+            border-bottom: 3px solid #A03A13;
+        }
+
+        nav {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 1.8rem 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: normal;
+            color: #EDE4C2;
+            font-style: italic;
+            letter-spacing: 2px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: #EDE4C2;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: normal;
+            transition: color 0.3s;
+            border-bottom: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: #F5824A;
+            border-bottom: 1px solid #F5824A;
+        }
+
+        .hero {
+            background-color: #254F22;
+            color: #EDE4C2;
+            padding: 7rem 30px 8rem;
+            text-align: left;
+            position: relative;
+            border-bottom: 4px solid #A03A13;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 15%;
+            width: 120px;
+            height: 4px;
+            background-color: #F5824A;
+        }
+
+        .hero-content {
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+
+        .hero h2 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: normal;
+            line-height: 1.2;
+            font-style: italic;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            color: #EDE4C2;
+            max-width: 560px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: transparent;
+            color: #EDE4C2;
+            padding: 0.9rem 2.2rem;
+            text-decoration: none;
+            border: 2px solid #F5824A;
+            font-weight: normal;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
+        }
+
+        .btn:hover {
+            background-color: #F5824A;
+            color: #254F22;
+        }
+
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 5rem 30px;
+        }
+
+        .section-title {
+            margin-bottom: 4rem;
+            font-size: 2.8rem;
+            color: #254F22;
+            font-weight: normal;
+            font-style: italic;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background-color: #A03A13;
+        }
+
+        /* Services Section */
+        .services {
+            background-color: #EDE4C2;
+        }
+
+        .service-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .service-item {
+            background-color: transparent;
+            padding: 2.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(37, 79, 34, 0.2);
+            gap: 2rem;
+        }
+
+        .service-item:last-child {
+            border-bottom: 2px solid #A03A13;
+        }
+
+        .service-info {
+            flex: 1;
+        }
+
+        .service-info h3 {
+            font-size: 1.6rem;
+            margin-bottom: 0.6rem;
+            color: #254F22;
+            font-weight: normal;
+        }
+
+        .service-info p {
+            color: #254F22;
+            opacity: 0.7;
+            font-size: 0.95rem;
+        }
+
+        .service-price {
+            font-size: 2rem;
+            font-weight: normal;
+            color: #A03A13;
+            margin-right: 3rem;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .service-book-btn {
+            background-color: transparent;
+            color: #A03A13;
+            border: 2px solid #A03A13;
+            padding: 0.7rem 1.6rem;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-family: 'Georgia', serif;
+        }
+
+        .service-book-btn:hover {
+            background-color: #F5824A;
+            border-color: #F5824A;
+            color: #EDE4C2;
+        }
+
+        /* Specialists Section */
+        .specialists {
+            background-color: #254F22;
+            color: #EDE4C2;
+        }
+
+        .specialists .section-title {
+            color: #EDE4C2;
+        }
+
+        .specialists .section-title::after {
+            background-color: #F5824A;
+        }
+
+        .specialist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 3rem;
+        }
+
+        .specialist-card {
+            background-color: transparent;
+            padding: 0;
+            text-align: left;
+            border-left: 3px solid #A03A13;
+            padding-left: 1.5rem;
+        }
+
+        .specialist-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 0;
+            background-color: #A03A13;
+            margin: 0 0 1.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #EDE4C2;
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        .specialist-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.4rem;
+            color: #EDE4C2;
+            font-weight: normal;
+        }
+
+        .specialist-card .role {
+            color: #F5824A;
+            font-weight: normal;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .specialist-card .experience {
+            color: #EDE4C2;
+            opacity: 0.9;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            font-weight: normal;
+        }
+
+        .specialist-card p {
+            color: #EDE4C2;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .specialist-card .specialist-email {
+            color: #F5824A;
+            opacity: 0.7;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        /* Locations Section */
+        .locations {
+            background-color: #EDE4C2;
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 3rem;
+        }
+
+        .location-card {
+            background-color: transparent;
+            padding: 2rem;
+            border: 2px solid #A03A13;
+            position: relative;
+        }
+
+        .location-card::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 20px;
+            width: 50px;
+            height: 2px;
+            background-color: #F5824A;
+        }
+
+        .location-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 1.2rem;
+            color: #A03A13;
+            font-weight: normal;
+        }
+
+        .location-card p {
+            margin-bottom: 0.7rem;
+            color: #254F22;
+            font-size: 0.95rem;
+        }
+
+        .location-card strong {
+            color: #A03A13;
+            font-weight: normal;
+        }
+
+        /* Hours Section */
+        .hours {
+            background-color: #254F22;
+            color: #EDE4C2;
+        }
+
+        .hours .section-title {
+            color: #EDE4C2;
+        }
+
+        .hours .section-title::after {
+            background-color: #F5824A;
+        }
+
+        .hours-content {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: transparent;
+            padding: 0;
+            border-top: 2px solid #A03A13;
+            border-bottom: 2px solid #A03A13;
+        }
+
+        .hours-content table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .hours-content td {
+            padding: 1.2rem 0;
+            border-bottom: 1px solid rgba(237, 228, 194, 0.2);
+        }
+
+        .hours-content td:first-child {
+            font-weight: normal;
+            color: #EDE4C2;
+            width: 40%;
+        }
+
+        .hours-content td:last-child {
+            text-align: right;
+            color: #F5824A;
+            font-weight: normal;
+        }
+
+        .hours-content tr:last-child td {
+            border-bottom: none;
+        }
+
+        footer {
+            background-color: #254F22;
+            color: #EDE4C2;
+            text-align: center;
+            padding: 3rem 20px;
+            border-top: 2px solid #A03A13;
+        }
+
+        footer p {
+            color: #EDE4C2;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            nav ul {
+                gap: 2rem;
+                font-size: 0.9rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .logo {
+                font-size: 1.8rem;
+            }
+
+            .hero {
+                text-align: center;
+                padding: 5rem 20px;
+            }
+
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+                max-width: 100%;
+            }
+
+            .hero::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .service-item {
+                flex-direction: column;
+                text-align: left;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+
+            .service-price {
+                margin-right: 0;
+            }
+
+            .section-title {
+                font-size: 2.2rem;
+            }
+
+            .container {
+                padding: 4rem 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">0verlytrim</div>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#specialists">Specialists</a></li>
+                <li><a href="#locations">Location</a></li>
+                <li><a href="#hours">Hours</a></li>
+                <li><a href="/book">Book Now</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h2>Welcome to 0verlytrim</h2>
+            <p>Where precision meets style. Book your appointment online today.</p>
+            <a href="/book" class="btn">Book Your Service</a>
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <div class="service-list" id="servicesList">
+                <!-- Services will be loaded from API -->
+            </div>
+        </div>
+    </section>
+
+    <section id="specialists" class="specialists">
+        <div class="container">
+            <h2 class="section-title">Our Specialists</h2>
+            <div class="specialist-grid" id="specialistGrid">
+                <!-- Specialists will be loaded from API -->
+            </div>
+        </div>
+    </section>
+
+    <section id="locations" class="locations">
+        <div class="container">
+            <h2 class="section-title">Our Location</h2>
+            <div class="location-grid">
+                <div class="location-card">
+                    <h3>Downtown Location</h3>
+                    <p><strong>Address:</strong> 456 Main Street, Suite 101</p>
+                    <p><strong>City:</strong> Downtown District, 12345</p>
+                    <p><strong>Phone:</strong> (555) 123-4567</p>
+                    <p><strong>Parking:</strong> Street parking and garage available</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="hours" class="hours">
+        <div class="container">
+            <h2 class="section-title">Business Hours</h2>
+            <div class="hours-content">
+                <table>
+                    <tr>
+                        <td>Monday</td>
+                        <td>9:00 AM - 8:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Tuesday</td>
+                        <td>9:00 AM - 8:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Wednesday</td>
+                        <td>9:00 AM - 8:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Thursday</td>
+                        <td>9:00 AM - 8:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Friday</td>
+                        <td>9:00 AM - 9:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Saturday</td>
+                        <td>8:00 AM - 7:00 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Sunday</td>
+                        <td>10:00 AM - 6:00 PM</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 0verlytrim. All rights reserved. Online booking powered by Express</p>
+        <p>Made by Arsenskii</p>
+    </footer>
+
+    <script>
+        // API Configuration - Update these endpoints to match your Express backend
+        const API_BASE_URL = '/api'; // Change this to your API base URL
+        const SERVICES_ENDPOINT = `${API_BASE_URL}/service`;
+        const SPECIALISTS_ENDPOINT = `${API_BASE_URL}/users/specialist`;
+        const BOOKING_ENDPOINT = `${API_BASE_URL}/booking`;
+
+        // Fetch and display services
+        async function loadServices() {
+            const servicesList = document.getElementById('servicesList');
+            
+            try {
+                // Show loading state
+                servicesList.innerHTML = '<p style="text-align: center; color: #A03A13; padding: 2rem;">Loading services...</p>';
+                
+                const response = await fetch(SERVICES_ENDPOINT);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch services');
+                }
+                
+                const responseData = await response.json();
+                const services = responseData.data || [];
+                
+                // Clear loading state
+                servicesList.innerHTML = '';
+                
+                // Render services
+                services.forEach(service => {
+                    const serviceItem = document.createElement('div');
+                    serviceItem.className = 'service-item';
+                    
+                    serviceItem.innerHTML = `
+                        <div class="service-info">
+                            <h3>${service.title}</h3>
+                            <p>Duration: ${service.duration} minutes</p>
+                        </div>
+                        <div class="service-price">$${service.price}</div>
+                        <button class="service-book-btn" onclick="bookService('${service.title}', '${service._id}')">Reserve This</button>
+                    `;
+                    
+                    servicesList.appendChild(serviceItem);
+                });
+                
+            } catch (error) {
+                console.error('Error loading services:', error);
+                servicesList.innerHTML = '<p style="text-align: center; color: #A03A13; padding: 2rem;">Unable to load services. Please try again later.</p>';
+            }
+        }
+
+        // Fetch and display specialists
+        async function loadSpecialists() {
+            const specialistGrid = document.getElementById('specialistGrid');
+            
+            try {
+                // Show loading state
+                specialistGrid.innerHTML = '<p style="text-align: center; color: #EDE4C2; padding: 2rem; grid-column: 1/-1;">Loading specialists...</p>';
+                
+                const response = await fetch(SPECIALISTS_ENDPOINT);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch specialists');
+                }
+                
+                const responseData = await response.json();
+                const specialists = responseData.data || [];
+                
+                // Clear loading state
+                specialistGrid.innerHTML = '';
+                
+                // Render specialists
+                specialists.forEach(specialist => {
+                    const specialistCard = document.createElement('div');
+                    specialistCard.className = 'specialist-card';
+                    
+                    // Generate initials from name
+                    const initials = specialist.name
+                        .split(' ')
+                        .map(n => n[0])
+                        .join('')
+                        .toUpperCase();
+                    
+                    specialistCard.innerHTML = `
+                        <div class="specialist-avatar">${initials}</div>
+                        <h3>${specialist.name}</h3>
+                        <p class="role">${specialist.profile?.class || 'Barber'}</p>
+                        <p class="experience">${specialist.profile?.yearsExperience || 0} years of experience</p>
+                        <p>${specialist.profile?.description || 'Professional barber'}</p>
+                        <p class="specialist-email">${specialist.email}</p>
+                    `;
+                    
+                    specialistGrid.appendChild(specialistCard);
+                });
+                
+            } catch (error) {
+                console.error('Error loading specialists:', error);
+                specialistGrid.innerHTML = '<p style="text-align: center; color: #EDE4C2; padding: 2rem; grid-column: 1/-1;">Unable to load specialists. Please try again later.</p>';
+            }
+        }
+
+        // Book service function
+        function bookService(serviceName, serviceId) {
+            // Redirect to booking page with service info
+            window.location.href = `${BOOKING_ENDPOINT}?service=${encodeURIComponent(serviceName)}&id=${serviceId}`;
+            
+            // Alternative: Use fetch to send booking request
+            /*
+            fetch(BOOKING_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    serviceId: serviceId,
+                    serviceName: serviceName,
+                    timestamp: new Date().toISOString()
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Booking initiated:', data);
+                // Redirect to booking confirmation or calendar page
+                if (data.bookingUrl) {
+                    window.location.href = data.bookingUrl;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Unable to process booking. Please try again.');
+            });
+            */
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadServices();
+            loadSpecialists();
+        });
+    </script>
+</body>
+</html>
