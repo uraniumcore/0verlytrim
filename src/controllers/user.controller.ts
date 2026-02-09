@@ -84,10 +84,13 @@ export const createSpecialist = async (req: Request, res: Response, next: NextFu
         }
 
         // 1️⃣ создаём User
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         const user = new User({
             name,
             email,
-            password,
+            password: hashedPassword,
             role: "specialist"
         });
         await user.save({ session }); // сохраняем сессией
@@ -137,6 +140,93 @@ export const getAllSpecialists = async (req: Request, res: Response, next: NextF
             data: specialistProfiles
         });
     } catch (error) {
+        next(error);
+    }
+};
+
+export const updateSpecialist = async (req: Request, res: Response, next: NextFunction) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { id } = req.params;
+        const { name, email, description, class: level, yearsExperience, password } = req.body;
+
+        const profile = await Specialist.findById(id);
+        if (!profile) {
+            return next(new AppError("Specialist profile not found", 404));
+        }
+
+        // 1️⃣ Update User
+        const user = await User.findById(profile.user);
+        if (!user) {
+            return next(new AppError("Associated user not found", 404));
+        }
+
+        if (name) user.name = name;
+        if (email) user.email = email;
+        
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password, salt);
+        }
+
+        await user.save({ session });
+
+        // 2️⃣ Update Specialist Profile
+        if (description) profile.description = description;
+        if (level) profile.class = level;
+        if (yearsExperience !== undefined) profile.yearsExperience = yearsExperience;
+        await profile.save({ session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(200).json({
+            status: "success",
+            data: { user, profile }
+        });
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        next(error);
+    }
+};
+
+export const deleteSpecialist = async (req: Request, res: Response, next: NextFunction) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const { id } = req.params;
+
+        const profile = await Specialist.findById(id);
+        if (!profile) {
+            return next(new AppError("Specialist profile not found", 404));
+        }
+
+        // 1️⃣ Delete Associated Bookings (or we could set specialist to null/deleted)
+        // For simplicity and safety, let's delete them or restrict deletion if bookings exist.
+        // Usually, it's better to keep the records, but the task says "delete action".
+        // Let's delete the bookings as well to maintain integrity in this simple app.
+        await Booking.deleteMany({ specialist: id }, { session });
+
+        // 2️⃣ Delete Specialist Profile
+        await Specialist.findByIdAndDelete(id, { session });
+
+        // 3️⃣ Delete User account
+        await User.findByIdAndDelete(profile.user, { session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(204).json({
+            status: "success",
+            data: null
+        });
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         next(error);
     }
 };

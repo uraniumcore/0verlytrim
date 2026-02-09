@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - 0verlytrim</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            color: #254F22;
+            background-color: #EDE4C2;
+        }
+
+        header {
+            background-color: #254F22;
+            padding: 0;
+            position: relative;
+            border-bottom: 3px solid #A03A13;
+        }
+
+        nav {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 1.8rem 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: normal;
+            color: #EDE4C2;
+            font-style: italic;
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 3rem;
+            align-items: baseline;
+        }
+
+        nav a {
+            color: #EDE4C2;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: normal;
+            transition: color 0.3s;
+            border-bottom: 1px solid transparent;
+        }
+
+        nav a:hover {
+            color: #F5824A;
+            border-bottom: 1px solid #F5824A;
+        }
+
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 4rem 30px;
+        }
+
+        .page-title {
+            margin-bottom: 3rem;
+            font-size: 2.8rem;
+            color: #254F22;
+            font-weight: normal;
+            font-style: italic;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background-color: #A03A13;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #A03A13;
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            background: transparent;
+            border: 2px solid #A03A13;
+            color: #A03A13;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background-color: #254F22;
+            color: #EDE4C2;
+            border-color: #254F22;
+        }
+
+        .admin-section {
+            display: none;
+            background-color: transparent;
+            border: 2px solid #A03A13;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .admin-section::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 20px;
+            width: 50px;
+            height: 2px;
+            background-color: #F5824A;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #254F22;
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(37, 79, 34, 0.2);
+        }
+
+        th {
+            color: #A03A13;
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #A03A13;
+            background-color: transparent;
+            color: #A03A13;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background-color: #F5824A;
+            border-color: #F5824A;
+            color: #EDE4C2;
+        }
+
+        .btn-primary {
+            background-color: #254F22;
+            border-color: #254F22;
+            color: #EDE4C2;
+        }
+
+        .btn-danger {
+            color: #d20000;
+            border-color: #d20000;
+        }
+
+        .btn-danger:hover {
+            background-color: #d20000;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #A03A13;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #A03A13;
+            background-color: #EDE4C2;
+            color: #254F22;
+            font-family: 'Georgia', serif;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(37, 79, 34, 0.8);
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #EDE4C2;
+            border: 3px solid #A03A13;
+            max-width: 600px;
+            width: 100%;
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: 2px solid #A03A13;
+            color: #A03A13;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.5rem;
+            font-size: 0.8rem;
+            border: 1px solid;
+        }
+
+        .status-booked { color: #F5824A; border-color: #F5824A; }
+        .status-completed { color: #254F22; border-color: #254F22; }
+        .status-cancelled { color: #A03A13; border-color: #A03A13; opacity: 0.6; }
+
+        footer {
+            background-color: #254F22;
+            color: #EDE4C2;
+            text-align: center;
+            padding: 2.5rem 20px;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">0verlytrim</a>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/admin">Admin Panel</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Admin Management</h1>
+
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('bookings')">Bookings</button>
+            <button class="tab-btn" onclick="switchTab('services')">Services</button>
+            <button class="tab-btn" onclick="switchTab('specialists')">Specialists</button>
+        </div>
+
+        <!-- Bookings Section -->
+        <section id="bookingsSection" class="admin-section active">
+            <div class="section-header">
+                <h2 class="section-title">All Bookings</h2>
+            </div>
+            <div id="bookingsList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Specialist</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Edit Booking Modal -->
+        <div id="editBookingModal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal('editBookingModal')">&times;</button>
+                <h2 class="section-title">Edit Booking</h2>
+                <form id="editBookingForm" onsubmit="handleBookingEditSubmit(event)">
+                    <input type="hidden" id="editBookingId">
+                    <div class="form-group">
+                        <label for="editBookingSpecialist">Specialist</label>
+                        <select id="editBookingSpecialist" required onchange="updateAdminEditAvailability()">
+                            <!-- Specialists will be loaded here -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookingDate">Date</label>
+                        <input type="date" id="editBookingDate" required onchange="updateAdminEditAvailability()">
+                    </div>
+                    <div class="form-group">
+                        <label>Time Slot</label>
+                        <div id="adminEditTimeSlots" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                            <!-- Slots will be loaded here -->
+                        </div>
+                        <input type="hidden" id="editBookingTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookingStatus">Status</label>
+                        <select id="editBookingStatus" required>
+                            <option value="booked">Booked</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <section id="servicesSection" class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">Manage Services</h2>
+                <button class="btn btn-primary" onclick="openServiceModal()">Add New Service</button>
+            </div>
+            <div id="servicesList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Duration</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="servicesTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Specialists Section -->
+        <section id="specialistsSection" class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">Manage Specialists</h2>
+                <button class="btn btn-primary" onclick="openSpecialistModal()">Add New Specialist</button>
+            </div>
+            <div id="specialistsList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role/Class</th>
+                            <th>Experience</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="specialistsTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Service Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('serviceModal')">&times;</button>
+            <h2 id="serviceModalTitle" class="section-title">Add Service</h2>
+            <form id="serviceForm" onsubmit="handleServiceSubmit(event)">
+                <input type="hidden" id="serviceId">
+                <div class="form-group">
+                    <label for="serviceTitle">Title</label>
+                    <input type="text" id="serviceTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="serviceDuration">Duration (minutes)</label>
+                    <input type="number" id="serviceDuration" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="servicePrice">Price ($)</label>
+                    <input type="number" id="servicePrice" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="serviceActive">Active</label>
+                    <select id="serviceActive">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Service</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Specialist Modal -->
+    <div id="specialistModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('specialistModal')">&times;</button>
+            <h2 id="specialistModalTitle" class="section-title">Add New Specialist</h2>
+            <form id="specialistForm" onsubmit="handleSpecialistSubmit(event)">
+                <input type="hidden" id="specId">
+                <div class="form-group">
+                    <label for="specName">Full Name</label>
+                    <input type="text" id="specName" required>
+                </div>
+                <div class="form-group">
+                    <label for="specEmail">Email</label>
+                    <input type="email" id="specEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="specPassword">Password (leave blank to keep current)</label>
+                    <input type="password" id="specPassword" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="specClass">Class/Level (e.g., Master Barber)</label>
+                    <input type="text" id="specClass" required>
+                </div>
+                <div class="form-group">
+                    <label for="specExperience">Years of Experience</label>
+                    <input type="number" id="specExperience" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="specDescription">Description</label>
+                    <textarea id="specDescription" required></textarea>
+                </div>
+                <button type="submit" id="specSubmitBtn" class="btn btn-primary">Create Specialist</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 0verlytrim Admin Panel</p>
+    </footer>
+
+    <script>
+        const API_BASE_URL = '/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        // Authentication Check
+        async function checkAdmin() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const user = await response.json();
+                if (user.role !== 'admin') {
+                    alert('Access denied. Admins only.');
+                    window.location.href = '/profile';
+                }
+            } catch (err) {
+                window.location.href = '/login';
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+            
+            document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`${tab}Section`).classList.add('active');
+            
+            if (tab === 'bookings') loadAllBookings();
+            if (tab === 'services') loadServices();
+            if (tab === 'specialists') loadSpecialists();
+        }
+
+        // --- Bookings ---
+        let bookingsData = [];
+        async function loadAllBookings() {
+            const tbody = document.getElementById('bookingsTableBody');
+            tbody.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/booking/all`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                bookingsData = result.data;
+                
+                tbody.innerHTML = '';
+                bookingsData.forEach((b, index) => {
+                    const row = document.createElement('tr');
+                    const date = new Date(b.serviceDate).toLocaleDateString();
+                    const startTime = new Date(b.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    row.innerHTML = `
+                        <td>${date}</td>
+                        <td>${startTime}</td>
+                        <td>${b.user?.name || 'Deleted User'}</td>
+                        <td>${b.service?.title || 'Deleted Service'}</td>
+                        <td>${b.specialist?.user?.name || 'Deleted Spec'}</td>
+                        <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+                        <td>
+                            ${b.status === 'booked' ? `
+                                <button class="btn" onclick="openEditBookingModalByIndex(${index})">Edit</button>
+                                <button class="btn btn-danger" onclick="cancelBooking('${b._id}')">Cancel</button>
+                            ` : ''}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="7">Error loading bookings</td></tr>';
+            }
+        }
+
+        function openEditBookingModalByIndex(index) {
+            openEditBookingModal(bookingsData[index]);
+        }
+
+        async function cancelBooking(id) {
+            if (!confirm('Cancel this booking?')) return;
+            try {
+                const response = await fetch(`${API_BASE_URL}/booking/${id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'cancelled' })
+                });
+                if (response.ok) loadAllBookings();
+            } catch (err) { alert('Failed to cancel'); }
+        }
+
+        // --- Edit Booking ---
+        let allSpecialists = [];
+        async function loadSpecialistsForEdit() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/specialist`);
+                const result = await response.json();
+                allSpecialists = result.data;
+                
+                const select = document.getElementById('editBookingSpecialist');
+                select.innerHTML = '';
+                allSpecialists.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s.profile._id;
+                    option.textContent = s.name;
+                    select.appendChild(option);
+                });
+            } catch (err) {}
+        }
+
+        let currentEditingBooking = null;
+
+        async function openEditBookingModal(booking) {
+            await loadSpecialistsForEdit();
+            currentEditingBooking = booking;
+            
+            document.getElementById('editBookingId').value = booking._id;
+            document.getElementById('editBookingSpecialist').value = booking.specialist._id;
+            
+            const dateStr = new Date(booking.serviceDate).toISOString().split('T')[0];
+            document.getElementById('editBookingDate').value = dateStr;
+            
+            const timeStr = new Date(booking.startTime).toTimeString().slice(0, 5);
+            await updateAdminEditAvailability(timeStr);
+            
+            document.getElementById('editBookingStatus').value = booking.status;
+            
+            document.getElementById('editBookingModal').classList.add('active');
+        }
+
+        async function updateAdminEditAvailability(preselectedTime = null) {
+            const dateStr = document.getElementById('editBookingDate').value;
+            const specialistId = document.getElementById('editBookingSpecialist').value;
+            const container = document.getElementById('adminEditTimeSlots');
+            
+            if (!dateStr || !specialistId) return;
+
+            container.innerHTML = 'Loading...';
+
+            let busySlots = [];
+            try {
+                const response = await fetch(`${API_BASE_URL}/booking/busy-slots?specialistId=${specialistId}&date=${dateStr}`);
+                const result = await response.json();
+                busySlots = result.data || [];
+            } catch (err) {}
+
+            container.innerHTML = '';
+            
+            for (let hour = 9; hour <= 20; hour++) {
+                const time = `${hour.toString().padStart(2, '0')}:00`;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn';
+                btn.style.padding = '0.5rem';
+                btn.textContent = time;
+
+                // For the current booking, the current time is not "busy"
+                const isCurrentTime = currentEditingBooking && 
+                    new Date(currentEditingBooking.startTime).toTimeString().slice(0,5) === time && 
+                    new Date(currentEditingBooking.serviceDate).toISOString().split('T')[0] === dateStr &&
+                    currentEditingBooking.specialist._id === specialistId;
+
+                const isBusy = busySlots.includes(time) && !isCurrentTime;
+
+                if (isBusy) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.3';
+                    btn.style.textDecoration = 'line-through';
+                }
+
+                btn.onclick = () => {
+                    document.querySelectorAll('#adminEditTimeSlots .btn').forEach(b => b.classList.remove('btn-primary'));
+                    btn.classList.add('btn-primary');
+                    document.getElementById('editBookingTime').value = time;
+                };
+
+                if (preselectedTime === time || (isCurrentTime && !preselectedTime)) {
+                    btn.classList.add('btn-primary');
+                    document.getElementById('editBookingTime').value = time;
+                }
+
+                container.appendChild(btn);
+            }
+        }
+
+        async function handleBookingEditSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('editBookingId').value;
+            const specialist = document.getElementById('editBookingSpecialist').value;
+            const dateStr = document.getElementById('editBookingDate').value;
+            const timeStr = document.getElementById('editBookingTime').value;
+            const status = document.getElementById('editBookingStatus').value;
+
+            // Find current booking to get service duration
+            const response = await fetch(`${API_BASE_URL}/booking/${id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const result = await response.json();
+            const booking = result.data;
+            const duration = booking.service.duration || 60;
+
+            const startTime = new Date(`${dateStr}T${timeStr}`);
+            const endTime = new Date(startTime.getTime() + duration * 60000);
+
+            if (startTime.getMinutes() !== 0) {
+                alert('Bookings must start on the hour (e.g., 10:00)');
+                return;
+            }
+
+            const startHour = startTime.getHours();
+            if (startHour < 9 || startHour > 20) {
+                alert('Bookings must be between 09:00 and 20:00');
+                return;
+            }
+
+            const data = {
+                specialist,
+                serviceDate: dateStr,
+                startTime: startTime.toISOString(),
+                endTime: endTime.toISOString(),
+                status
+            };
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/booking/${id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    closeModal('editBookingModal');
+                    loadAllBookings();
+                } else {
+                    const err = await res.json();
+                    alert(err.message || 'Failed to update booking');
+                }
+            } catch (err) {
+                alert('An error occurred');
+            }
+        }
+
+        // --- Services ---
+        let servicesData = [];
+        async function loadServices() {
+            const tbody = document.getElementById('servicesTableBody');
+            try {
+                const response = await fetch(`${API_BASE_URL}/service`);
+                const result = await response.json();
+                servicesData = result.data;
+                tbody.innerHTML = '';
+                servicesData.forEach((s, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${s.title}</td>
+                        <td>${s.duration} min</td>
+                        <td>$${s.price}</td>
+                        <td>${s.isActive ? 'Active' : 'Inactive'}</td>
+                        <td>
+                            <button class="btn" onclick="editServiceByIndex(${index})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteService('${s._id}')">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {}
+        }
+
+        function editServiceByIndex(index) {
+            editService(servicesData[index]);
+        }
+
+        function openServiceModal() {
+            document.getElementById('serviceForm').reset();
+            document.getElementById('serviceId').value = '';
+            document.getElementById('serviceModalTitle').innerText = 'Add Service';
+            document.getElementById('serviceModal').classList.add('active');
+        }
+
+        function editService(s) {
+            document.getElementById('serviceId').value = s._id;
+            document.getElementById('serviceTitle').value = s.title;
+            document.getElementById('serviceDuration').value = s.duration;
+            document.getElementById('servicePrice').value = s.price;
+            document.getElementById('serviceActive').value = s.isActive.toString();
+            document.getElementById('serviceModalTitle').innerText = 'Edit Service';
+            document.getElementById('serviceModal').classList.add('active');
+        }
+
+        async function handleServiceSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('serviceId').value;
+            const data = {
+                title: document.getElementById('serviceTitle').value,
+                duration: parseInt(document.getElementById('serviceDuration').value),
+                price: parseInt(document.getElementById('servicePrice').value),
+                isActive: document.getElementById('serviceActive').value === 'true'
+            };
+            
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_BASE_URL}/service/${id}` : `${API_BASE_URL}/service`;
+            
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    closeModal('serviceModal');
+                    loadServices();
+                }
+            } catch (err) {}
+        }
+
+        async function deleteService(id) {
+            if (!confirm('Delete service?')) return;
+            await fetch(`${API_BASE_URL}/service/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            loadServices();
+        }
+
+        // --- Specialists ---
+        let specialistsData = [];
+        async function loadSpecialists() {
+            const tbody = document.getElementById('specialistsTableBody');
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/specialist`);
+                const result = await response.json();
+                specialistsData = result.data;
+                tbody.innerHTML = '';
+                specialistsData.forEach((s, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${s.name}</td>
+                        <td>${s.email}</td>
+                        <td>${s.profile.class}</td>
+                        <td>${s.profile.yearsExperience} years</td>
+                        <td>
+                            <button class="btn" onclick="openSpecialistModalByIndex(${index})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteSpecialist('${s.profile._id}')">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {}
+        }
+
+        function openSpecialistModalByIndex(index) {
+            openSpecialistModal(specialistsData[index]);
+        }
+
+        function openSpecialistModal(spec = null) {
+            const form = document.getElementById('specialistForm');
+            form.reset();
+            
+            if (spec) {
+                document.getElementById('specialistModalTitle').innerText = 'Edit Specialist';
+                document.getElementById('specSubmitBtn').innerText = 'Save Changes';
+                document.getElementById('specId').value = spec.profile._id;
+                document.getElementById('specName').value = spec.name;
+                document.getElementById('specEmail').value = spec.email;
+                document.getElementById('specClass').value = spec.profile.class;
+                document.getElementById('specExperience').value = spec.profile.yearsExperience;
+                document.getElementById('specDescription').value = spec.profile.description;
+                
+                document.getElementById('specPassword').placeholder = "Leave blank to keep current password";
+                document.getElementById('specPassword').required = false;
+            } else {
+                document.getElementById('specialistModalTitle').innerText = 'Add New Specialist';
+                document.getElementById('specSubmitBtn').innerText = 'Create Specialist';
+                document.getElementById('specId').value = '';
+                
+                document.getElementById('specPassword').placeholder = "";
+                document.getElementById('specPassword').required = true;
+            }
+            
+            document.getElementById('specialistModal').classList.add('active');
+        }
+
+        async function handleSpecialistSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('specId').value;
+            
+            const data = {
+                name: document.getElementById('specName').value,
+                email: document.getElementById('specEmail').value,
+                class: document.getElementById('specClass').value,
+                yearsExperience: parseInt(document.getElementById('specExperience').value),
+                description: document.getElementById('specDescription').value
+            };
+            
+            const password = document.getElementById('specPassword').value;
+            if (password) {
+                data.password = password;
+            }
+            
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_BASE_URL}/users/specialist/${id}` : `${API_BASE_URL}/users/specialist`;
+            
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    closeModal('specialistModal');
+                    loadSpecialists();
+                } else {
+                    const err = await res.json();
+                    alert(err.message || 'Error saving specialist');
+                }
+            } catch (err) {
+                alert('An error occurred');
+            }
+        }
+
+        async function deleteSpecialist(id) {
+            if (!confirm('Are you sure you want to delete this specialist? This will also delete all their bookings.')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/specialist/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    loadSpecialists();
+                } else {
+                    const err = await response.json();
+                    alert(err.message || 'Failed to delete specialist');
+                }
+            } catch (err) {
+                alert('An error occurred');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Init
+        checkAdmin();
+        loadAllBookings();
+    </script>
+</body>
+</html>

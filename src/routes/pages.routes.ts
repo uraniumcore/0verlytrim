@@ -25,4 +25,8 @@ pagesRoutes.get("/book", (_req, res) => {
     res.sendFile(path.join(root, "../static/book.html"));
 });
 
+pagesRoutes.get("/admin", (_req, res) => {
+    res.sendFile(path.join(root, "../static/admin.html"));
+});
+
 export default pagesRoutes;

@@ -472,6 +472,7 @@
                 <li><a href="#locations">Location</a></li>
                 <li><a href="#hours">Hours</a></li>
                 <li><a href="/book">Book Now</a></li>
+                <li id="adminNavLink" style="display: none;"><a href="/admin">Admin Panel</a></li>
                 <li><a href="/profile">Profile</a></li>
             </ul>
         </nav>
@@ -545,11 +546,11 @@
                     </tr>
                     <tr>
                         <td>Saturday</td>
-                        <td>8:00 AM - 7:00 PM</td>
+                        <td style="color: #d20000;">Day off</td>
                     </tr>
                     <tr>
                         <td>Sunday</td>
-                        <td>10:00 AM - 6:00 PM</td>
+                        <td style="color: #d20000;">Day off</td>
                     </tr>
                 </table>
             </div>
@@ -567,6 +568,24 @@
         const SERVICES_ENDPOINT = `${API_BASE_URL}/service`;
         const SPECIALISTS_ENDPOINT = `${API_BASE_URL}/users/specialist`;
         const BOOKING_ENDPOINT = `${API_BASE_URL}/booking`;
+
+        // Check for admin role and show admin link
+        async function checkAdmin() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    if (user.role === 'admin') {
+                        document.getElementById('adminNavLink').style.display = 'block';
+                    }
+                }
+            } catch (err) {}
+        }
 
         // Fetch and display services
         async function loadServices() {
@@ -664,34 +683,7 @@
         // Book service function
         function bookService(serviceName, serviceId) {
             // Redirect to booking page with service info
-            window.location.href = `${BOOKING_ENDPOINT}?service=${encodeURIComponent(serviceName)}&id=${serviceId}`;
-            
-            // Alternative: Use fetch to send booking request
-            /*
-            fetch(BOOKING_ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    serviceId: serviceId,
-                    serviceName: serviceName,
-                    timestamp: new Date().toISOString()
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Booking initiated:', data);
-                // Redirect to booking confirmation or calendar page
-                if (data.bookingUrl) {
-                    window.location.href = data.bookingUrl;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Unable to process booking. Please try again.');
-            });
-            */
+            window.location.href = `/book?serviceId=${serviceId}`;
         }
 
         // Smooth scrolling for navigation links
@@ -710,6 +702,7 @@
 
         // Load data when page loads
         document.addEventListener('DOMContentLoaded', () => {
+            checkAdmin();
             loadServices();
             loadSpecialists();
         });

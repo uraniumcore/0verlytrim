@@ -9,8 +9,26 @@ import Specialist from "../models/Specialist.ts";
 import AppError from "../utils/apperror.ts";
 import { issueToken } from "../utils/jwt.ts";
 
+export const updatePastBookings = async () => {
+    try {
+        const now = new Date();
+        await Booking.updateMany(
+            {
+                status: 'booked',
+                endTime: { $lt: now }
+            },
+            {
+                $set: { status: 'completed' }
+            }
+        );
+    } catch (error) {
+        console.error("Error updating past bookings:", error);
+    }
+};
+
 export const createBooking = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        await updatePastBookings();
         if (!req.user) {
             return next(new AppError("Unauthorized", 401));
         }
@@ -37,6 +55,22 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
             return next(new AppError("endTime must be after startTime", 400));
         }
 
+        if (start < new Date()) {
+            return next(new AppError("Cannot book in the past", 400));
+        }
+
+        // Validate "on the hour" and range (9:00 - 20:00)
+        const startHour = start.getHours();
+        const startMinutes = start.getMinutes();
+
+        if (startMinutes !== 0) {
+            return next(new AppError("Bookings must start on the hour (e.g., 10:00)", 400));
+        }
+
+        if (startHour < 9 || startHour > 20) {
+            return next(new AppError("Bookings must be between 09:00 and 20:00", 400));
+        }
+
         // Check specialist profile exists - accept either Specialist _id or user id
         let specialistProfile = await Specialist.findById(specId).populate('user', 'role name');
         if (!specialistProfile) {
@@ -53,6 +87,7 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
         const conflict = await Booking.findOne({
             specialist: specialistToSave,
             serviceDate: new Date(serviceDate),
+            status: 'booked',
             $or: [
                 { startTime: { $lt: new Date(endTime), $gte: new Date(startTime) } },
                 { endTime: { $gt: new Date(startTime), $lte: new Date(endTime) } },
@@ -95,6 +130,7 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
 
 export const getBooking = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        await updatePastBookings();
         if (!req.user) {
             return next(new AppError("Unauthorized", 401));
         }
@@ -123,6 +159,7 @@ export const getBooking = async (req: Request, res: Response, next: NextFunction
 
 export const getBookingById = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        await updatePastBookings();
         if (!req.user) {
             return next(new AppError("Unauthorized", 401));
         }
@@ -167,7 +204,7 @@ export const changeBooking = async (req: Request, res: Response, next: NextFunct
         }
 
         const { id } = req.params;
-        const { serviceDate, startTime, endTime, status } = req.body;
+        const { serviceDate, startTime, endTime, status, specialist, service } = req.body;
 
         const booking = await Booking.findById(id);
 
@@ -180,12 +217,68 @@ export const changeBooking = async (req: Request, res: Response, next: NextFunct
             return next(new AppError("You don't have permission to update this booking", 403));
         }
 
-        // Update allowed fields
+        // 1-hour cancellation rule
+        if (status === 'cancelled' && req.user.role !== 'admin') {
+            const now = new Date();
+            const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+            if (booking.startTime < oneHourLater) {
+                return next(new AppError("Cannot cancel booking less than 1 hour before start time", 400));
+            }
+        }
+
+        // Specialist change (Admin only)
+        if (specialist && req.user.role === 'admin') {
+            let specialistProfile = await Specialist.findById(specialist);
+            if (!specialistProfile) {
+                specialistProfile = await Specialist.findOne({ user: specialist });
+            }
+            if (!specialistProfile) {
+                return next(new AppError("Specialist not found", 404));
+            }
+            booking.specialist = specialistProfile._id as any;
+        } else if (specialist && req.user.role !== 'admin') {
+            return next(new AppError("Only admins can change specialists", 403));
+        }
+
+        // Service change
+        if (service) booking.service = service;
+
+        // Date/Time change
         if (serviceDate) booking.serviceDate = serviceDate;
-        if (startTime) booking.startTime = startTime;
+        if (startTime) {
+            const start = new Date(startTime);
+            const startHour = start.getHours();
+            const startMinutes = start.getMinutes();
+
+            if (startMinutes !== 0) {
+                return next(new AppError("Bookings must start on the hour (e.g., 10:00)", 400));
+            }
+
+            if (startHour < 9 || startHour > 20) {
+                return next(new AppError("Bookings must be between 09:00 and 20:00", 400));
+            }
+            booking.startTime = startTime;
+        }
         if (endTime) booking.endTime = endTime;
+
+        // Status change
         if (status && ['booked', 'cancelled', 'completed'].includes(status)) {
             booking.status = status;
+        }
+
+        // Check for conflicts if time/date/specialist changed
+        if (serviceDate || startTime || endTime || specialist) {
+            const conflict = await Booking.findOne({
+                _id: { $ne: booking._id },
+                specialist: booking.specialist,
+                serviceDate: booking.serviceDate,
+                status: 'booked',
+                $or: [
+                    { startTime: { $lt: booking.endTime, $gte: booking.startTime } },
+                    { endTime: { $gt: booking.startTime, $lte: booking.endTime } },
+                ],
+            });
+            if (conflict) return next(new AppError("Time slot already booked", 400));
         }
 
         await booking.save();
@@ -204,6 +297,90 @@ export const changeBooking = async (req: Request, res: Response, next: NextFunct
         res.status(200).json({
             status: 'success',
             data: booking
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getBusySlots = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { specialistId, date } = req.query;
+
+        if (!specialistId || !date) {
+            return next(new AppError("Specialist ID and date are required", 400));
+        }
+
+        // specialistId might be the Specialist profile ID or User ID
+        let specProfile = await Specialist.findById(specialistId);
+        if (!specProfile) {
+            specProfile = await Specialist.findOne({ user: specialistId });
+        }
+
+        if (!specProfile) {
+            return next(new AppError("Specialist not found", 404));
+        }
+
+        const targetDate = new Date(date as string);
+        if (isNaN(targetDate.getTime())) {
+            return next(new AppError("Invalid date format", 400));
+        }
+
+        // Set date to start of day for comparison
+        const startOfDay = new Date(targetDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const bookings = await Booking.find({
+            specialist: specProfile._id,
+            serviceDate: {
+                $gte: startOfDay,
+                $lte: endOfDay
+            },
+            status: 'booked'
+        }).select('startTime endTime');
+
+        const busySlots = bookings.map(b => {
+            const start = new Date(b.startTime);
+            return `${start.getHours().toString().padStart(2, '0')}:00`;
+        });
+
+        res.status(200).json({
+            status: 'success',
+            data: busySlots
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getAllBookings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        await updatePastBookings();
+        
+        // No check for req.user here because it's handled by middleware, 
+        // but we can double check just in case.
+        if (!req.user || req.user.role !== "admin") {
+            return next(new AppError("You don't have permission to perform this action", 403));
+        }
+
+        const bookings = await Booking.find()
+            .populate('service')
+            .populate('user', 'name email')
+            .populate({
+                path: 'specialist',
+                populate: {
+                    path: 'user',
+                    select: 'name email'
+                }
+            })
+            .sort({ serviceDate: -1 });
+
+        res.status(200).json({
+            status: 'success',
+            results: bookings.length,
+            data: bookings
         });
     } catch (error) {
         next(error);

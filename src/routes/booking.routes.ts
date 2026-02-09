@@ -1,10 +1,16 @@
 import express from "express";
 
-import { createBooking, getBooking, getBookingById, changeBooking, deleteBooking} from "../controllers/booking.controller.ts";
+import { createBooking, getBooking, getBookingById, changeBooking, deleteBooking, getAllBookings, getBusySlots} from "../controllers/booking.controller.ts";
 
-import { verifyToken } from "../middleware/auth.middleware.ts";
+import { verifyToken, adminOnly } from "../middleware/auth.middleware.ts";
 
 const bookingRoutes = express.Router();
+
+// Get busy slots for specialist and date
+bookingRoutes.get("/busy-slots", getBusySlots);
+
+// Get all bookings (admin only)
+bookingRoutes.get("/all", verifyToken, adminOnly, getAllBookings);
 
 // Create booking
 bookingRoutes.post("/", verifyToken, createBooking);

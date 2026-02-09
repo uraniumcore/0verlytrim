@@ -560,6 +560,7 @@
                 <li><a href="/#services">Services</a></li>
                 <li><a href="/#specialists">Specialists</a></li>
                 <li><a href="/book">Book Now</a></li>
+                <li id="adminNavLink" style="display: none;"><a href="/admin">Admin Panel</a></li>
                 <li><a href="/profile">Profile</a></li>
             </ul>
         </nav>
@@ -669,6 +670,31 @@
             <div id="modalContent">
                 <!-- Booking details will be loaded here -->
             </div>
+            <div id="editBookingSection" style="display: none; border-top: 2px solid #A03A13; margin-top: 2rem; padding-top: 2rem;">
+                <h3 class="detail-section-title">Edit Appointment</h3>
+                <form id="editBookingForm" onsubmit="handleUserBookingUpdate(event)">
+                    <input type="hidden" id="editBookingId">
+                    <div class="form-group">
+                        <label for="editService">Service</label>
+                        <select id="editService" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate" required onchange="updateEditAvailability()">
+                    </div>
+                    <div class="form-group">
+                        <label>Time Slot</label>
+                        <div id="editTimeSlots" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                            <!-- Slots will be loaded here -->
+                        </div>
+                        <input type="hidden" id="editTime" required>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn" onclick="hideUserEditForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -750,6 +776,11 @@
                 userData = data;
                 
                 displayProfile(data);
+
+                // Show admin link if admin
+                if (data.role === 'admin') {
+                    document.getElementById('adminNavLink').style.display = 'block';
+                }
                 
                 // Hide loading, show content
                 document.getElementById('loadingState').style.display = 'none';
@@ -1000,6 +1031,11 @@
             const statusClass = booking.status.toLowerCase();
             const statusDisplay = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
 
+            // Determine cancel availability (only if 'booked' and more than 1 hour before start)
+            const now = new Date();
+            const oneHourBeforeStart = new Date(startTime.getTime() - 60 * 60 * 1000);
+            const canCancel = booking.status === 'booked' && now < oneHourBeforeStart;
+
             modalContent.innerHTML = `
                 <div class="detail-section">
                     <div class="detail-grid">
@@ -1075,6 +1111,23 @@
                         ` : ''}
                     </div>
                 </div>
+
+                ${canCancel ? `
+                <div class="detail-section">
+                    <div class="btn-group">
+                        <button class="btn" onclick="closeBookingModal()">Close</button>
+                        <button class="btn" onclick="showUserEditForm('${booking._id || booking.id}')">Edit Booking</button>
+                        <button class="btn btn-primary" onclick="cancelBooking('${booking._id || booking.id}')">Cancel Booking</button>
+                    </div>
+                </div>
+                ` : `
+                <div class="detail-section">
+                    <div class="btn-group">
+                        <button class="btn" onclick="closeBookingModal()">Close</button>
+                        <button class="btn btn-primary" disabled>Cancel Booking ${booking.status !== 'booked' ? '(not available)' : '(less than 1 hour left)'} </button>
+                    </div>
+                </div>
+                `}
             `;
         }
 
@@ -1082,6 +1135,199 @@
         function closeBookingModal() {
             const modal = document.getElementById('bookingModal');
             modal.classList.remove('active');
+            hideUserEditForm();
+        }
+
+        // --- User Edit Booking ---
+        let allServices = [];
+        let currentEditingBooking = null;
+
+        async function loadServicesForEdit() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/service`);
+                const data = await response.json();
+                allServices = data.data;
+                const select = document.getElementById('editService');
+                select.innerHTML = '';
+                allServices.forEach(s => {
+                    if (s.isActive) {
+                        const opt = document.createElement('option');
+                        opt.value = s._id;
+                        opt.textContent = `${s.title} ($${s.price})`;
+                        select.appendChild(opt);
+                    }
+                });
+            } catch (err) {}
+        }
+
+        async function showUserEditForm(bookingId) {
+            await loadServicesForEdit();
+            const token = getToken();
+            const response = await fetch(`${BOOKINGS_ENDPOINT}/${bookingId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const payload = await response.json();
+            const booking = payload.data;
+            currentEditingBooking = booking;
+
+            document.getElementById('editBookingId').value = booking._id;
+            document.getElementById('editService').value = booking.service._id;
+            const dateStr = new Date(booking.serviceDate).toISOString().split('T')[0];
+            document.getElementById('editDate').value = dateStr;
+            
+            const timeStr = new Date(booking.startTime).toTimeString().slice(0, 5);
+            // We'll call updateEditAvailability which will set the time slot UI
+            await updateEditAvailability(timeStr);
+
+            document.getElementById('editBookingSection').style.display = 'block';
+            document.getElementById('modalContent').style.display = 'none';
+        }
+
+        async function updateEditAvailability(preselectedTime = null) {
+            const dateStr = document.getElementById('editDate').value;
+            const container = document.getElementById('editTimeSlots');
+            const specialistId = currentEditingBooking.specialist._id || currentEditingBooking.specialist;
+            
+            if (!dateStr || !specialistId) return;
+
+            container.innerHTML = 'Loading...';
+
+            let busySlots = [];
+            try {
+                const response = await fetch(`${API_BASE_URL}/booking/busy-slots?specialistId=${specialistId}&date=${dateStr}`);
+                const result = await response.json();
+                busySlots = result.data || [];
+            } catch (err) {}
+
+            container.innerHTML = '';
+            
+            for (let hour = 9; hour <= 20; hour++) {
+                const time = `${hour.toString().padStart(2, '0')}:00`;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn';
+                btn.style.padding = '0.5rem';
+                btn.textContent = time;
+
+                // If it's the CURRENT booking's time, it shouldn't be considered "busy" for THIS update
+                const isCurrentTime = preselectedTime === time || (new Date(currentEditingBooking.startTime).toTimeString().slice(0,5) === time && dateStr === new Date(currentEditingBooking.serviceDate).toISOString().split('T')[0]);
+                const isBusy = busySlots.includes(time) && !isCurrentTime;
+
+                if (isBusy) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.3';
+                    btn.style.textDecoration = 'line-through';
+                }
+
+                btn.onclick = () => {
+                    document.querySelectorAll('#editTimeSlots .btn').forEach(b => b.classList.remove('btn-primary'));
+                    btn.classList.add('btn-primary');
+                    document.getElementById('editTime').value = time;
+                };
+
+                if (preselectedTime === time || (isCurrentTime && !preselectedTime)) {
+                    btn.classList.add('btn-primary');
+                    document.getElementById('editTime').value = time;
+                }
+
+                container.appendChild(btn);
+            }
+        }
+
+        function hideUserEditForm() {
+            document.getElementById('editBookingSection').style.display = 'none';
+            document.getElementById('modalContent').style.display = 'block';
+        }
+
+        async function handleUserBookingUpdate(e) {
+            e.preventDefault();
+            const id = document.getElementById('editBookingId').value;
+            const serviceId = document.getElementById('editService').value;
+            const dateStr = document.getElementById('editDate').value;
+            const timeStr = document.getElementById('editTime').value;
+            const token = getToken();
+
+            const service = allServices.find(s => s._id === serviceId);
+            const duration = service ? service.duration : 60;
+
+            const startTime = new Date(`${dateStr}T${timeStr}`);
+            const endTime = new Date(startTime.getTime() + duration * 60000);
+
+            if (startTime.getMinutes() !== 0) {
+                alert('Bookings must start on the hour (e.g., 10:00)');
+                return;
+            }
+
+            const startHour = startTime.getHours();
+            if (startHour < 9 || startHour > 20) {
+                alert('Bookings must be between 09:00 and 20:00');
+                return;
+            }
+
+            if (startTime < new Date()) {
+                alert('Cannot book in the past');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BOOKINGS_ENDPOINT}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        service: serviceId,
+                        serviceDate: dateStr,
+                        startTime: startTime.toISOString(),
+                        endTime: endTime.toISOString()
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Update failed');
+
+                showSuccess('Booking updated successfully');
+                closeBookingModal();
+                loadBookings();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // Cancel booking
+        async function cancelBooking(bookingId) {
+            const token = getToken();
+            if (!token) {
+                window.location.href = LOGIN_PAGE;
+                return;
+            }
+
+            if (!confirm('Are you sure you want to cancel this booking?')) return;
+
+            try {
+                const response = await fetch(`${BOOKINGS_ENDPOINT}/${bookingId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'cancelled' })
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to cancel booking');
+                }
+
+                closeBookingModal();
+                showSuccess('Booking cancelled successfully');
+                // reload bookings list
+                loadBookings();
+            } catch (error) {
+                console.error('Error cancelling booking:', error);
+                showError(error.message || 'Failed to cancel booking');
+            }
         }
 
         // Close modal when clicking outside

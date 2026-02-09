@@ -520,6 +520,7 @@
                 <li><a href="/#services">Services</a></li>
                 <li><a href="/#specialists">Specialists</a></li>
                 <li><a href="/book">Book Now</a></li>
+                <li id="adminNavLink" style="display: none;"><a href="/admin">Admin Panel</a></li>
                 <li><a href="/profile">Profile</a></li>
             </ul>
         </nav>
@@ -633,6 +634,24 @@
         let services = [];
         let specialists = [];
 
+        // Check for admin role and show admin link
+        async function checkAdmin() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    if (user.role === 'admin') {
+                        document.getElementById('adminNavLink').style.display = 'block';
+                    }
+                }
+            } catch (err) {}
+        }
+
         // Get JWT token
         function getToken() {
             return localStorage.getItem('token');
@@ -692,6 +711,7 @@
                 services.forEach(service => {
                     const serviceCard = document.createElement('div');
                     serviceCard.className = 'service-card';
+                    serviceCard.dataset.id = service._id;
                     serviceCard.onclick = (e) => selectService(service, e);
 
                     serviceCard.innerHTML = `
@@ -716,6 +736,10 @@
             // Update UI
             document.querySelectorAll('.service-card').forEach(card => {
                 card.classList.remove('selected');
+                // If it's a manual click or if we're matching the ID (for auto-select)
+                if (card.dataset.id === service._id) {
+                    card.classList.add('selected');
+                }
             });
             if (e && e.currentTarget) e.currentTarget.classList.add('selected');
 
@@ -789,32 +813,61 @@
         }
 
         // Load available time slots
-        function loadAvailableSlots() {
+        async function loadAvailableSlots() {
             const dateInput = document.getElementById('bookingDate');
             selectedDate = dateInput.value;
 
-            if (!selectedDate) return;
+            if (!selectedDate || !selectedSpecialist) return;
 
             const timeSlotsContainer = document.getElementById('timeSlotsContainer');
             const timeSlotsList = document.getElementById('timeSlotsList');
 
             timeSlotsContainer.style.display = 'block';
+            timeSlotsList.innerHTML = '<div class="loading">Checking availability...</div>';
 
-            // Generate time slots (9 AM to 6 PM, 30-min intervals)
+            // Fetch busy slots
+            let busySlots = [];
+            try {
+                const specId = selectedSpecialist.profile?._id || selectedSpecialist._id;
+                const response = await fetch(`${BOOKINGS_ENDPOINT}/busy-slots?specialistId=${specId}&date=${selectedDate}`);
+                const result = await response.json();
+                busySlots = result.data || [];
+            } catch (err) {
+                console.error('Error fetching busy slots:', err);
+            }
+
+            // Generate time slots (9 AM to 8 PM, on the hour)
             const slots = [];
-            for (let hour = 9; hour < 18; hour++) {
-                for (let minute of [0, 30]) {
-                    const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                    slots.push(time);
-                }
+            for (let hour = 9; hour <= 20; hour++) {
+                const time = `${hour.toString().padStart(2, '0')}:00`;
+                slots.push(time);
             }
 
             timeSlotsList.innerHTML = '';
+            const now = new Date();
+            const isToday = new Date(selectedDate).toDateString() === now.toDateString();
 
             slots.forEach(time => {
                 const slotBtn = document.createElement('button');
                 slotBtn.className = 'time-slot';
                 slotBtn.textContent = time;
+
+                const isBusy = busySlots.includes(time);
+
+                if (isBusy) {
+                    slotBtn.disabled = true;
+                    slotBtn.title = 'Already booked';
+                    slotBtn.style.opacity = '0.3';
+                    slotBtn.style.textDecoration = 'line-through';
+                } else if (isToday) {
+                    const [hour, minute] = time.split(':');
+                    const slotTime = new Date();
+                    slotTime.setHours(parseInt(hour), parseInt(minute), 0, 0);
+                    if (slotTime < now) {
+                        slotBtn.disabled = true;
+                    }
+                }
+
                 slotBtn.onclick = (e) => selectTimeSlot(time, e);
 
                 timeSlotsList.appendChild(slotBtn);
@@ -927,6 +980,10 @@
                 const startTime = new Date(selectedDate);
                 startTime.setHours(parseInt(hours), parseInt(minutes), 0);
 
+                if (startTime < new Date()) {
+                    throw new Error('This time slot is in the past. Please select another one.');
+                }
+
                 // Calculate end time based on service duration
                 const duration = selectedService.duration || 60;
                 const endTime = new Date(startTime);
@@ -971,12 +1028,24 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            checkAdmin();
             if (!checkAuth()) return;
 
-            loadServices();
-            loadSpecialists();
+            await loadServices();
+            await loadSpecialists();
             setMinDate();
+
+            // Check for serviceId in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const serviceId = urlParams.get('serviceId');
+            if (serviceId) {
+                const service = services.find(s => s._id === serviceId);
+                if (service) {
+                    selectService(service);
+                    goToStep(2);
+                }
+            }
         });
     </script>
 </body>
