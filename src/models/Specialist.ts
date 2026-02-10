@@ -23,6 +23,6 @@ const specialistSchema = new Schema({
 });
 
 // Compile the schema into a model
-const Specialist = mongoose.model("Specialist", specialistSchema);
+const Specialist = mongoose.models.Specialist || mongoose.model("Specialist", specialistSchema);
 
 export default Specialist;
