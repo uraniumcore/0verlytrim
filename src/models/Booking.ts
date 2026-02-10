@@ -1,6 +1,17 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-const bookingSchema = new mongoose.Schema({
+export interface IBooking extends Document {
+    user: mongoose.Types.ObjectId;
+    service: mongoose.Types.ObjectId;
+    specialist: mongoose.Types.ObjectId;
+    serviceDate: Date;
+    startTime: Date;
+    endTime: Date;
+    status: 'booked' | 'cancelled' | 'completed';
+    createdAt: Date;
+}
+
+const bookingSchema = new mongoose.Schema<IBooking>({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -29,6 +40,6 @@ const bookingSchema = new mongoose.Schema({
 });
 
 // Compile the schema into a model
-const Booking = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
+const Booking: Model<IBooking> = mongoose.models.Booking || mongoose.model<IBooking>("Booking", bookingSchema);
 
 export default Booking;

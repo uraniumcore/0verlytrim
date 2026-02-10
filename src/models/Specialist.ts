@@ -1,6 +1,13 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-const specialistSchema = new Schema({
+export interface ISpecialist extends Document {
+    user: mongoose.Types.ObjectId;
+    description: string;
+    class: string;
+    yearsExperience: number;
+}
+
+const specialistSchema = new Schema<ISpecialist>({
     user: {
         type: Schema.Types.ObjectId,
         ref: "User",
@@ -23,6 +30,6 @@ const specialistSchema = new Schema({
 });
 
 // Compile the schema into a model
-const Specialist = mongoose.models.Specialist || mongoose.model("Specialist", specialistSchema);
+const Specialist: Model<ISpecialist> = mongoose.models.Specialist || mongoose.model<ISpecialist>("Specialist", specialistSchema);
 
 export default Specialist;

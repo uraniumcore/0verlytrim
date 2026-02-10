@@ -17,7 +17,7 @@ declare global {
         interface Request {
             user?: {
                 id: string;
-                role: "user" | "admin" | "barber";
+                role: "customer" | "specialist" | "admin";
             };
         }
     }
@@ -26,7 +26,7 @@ declare global {
 // Тип полезной нагрузки токена
 interface JwtPayload {
     id: string;
-    role: "user" | "admin" | "barber";
+    role: "customer" | "specialist" | "admin";
 }
 
 /**

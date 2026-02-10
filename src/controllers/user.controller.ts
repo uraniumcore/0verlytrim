@@ -209,7 +209,7 @@ export const deleteSpecialist = async (req: Request, res: Response, next: NextFu
         // For simplicity and safety, let's delete them or restrict deletion if bookings exist.
         // Usually, it's better to keep the records, but the task says "delete action".
         // Let's delete the bookings as well to maintain integrity in this simple app.
-        await Booking.deleteMany({ specialist: id }, { session });
+        await Booking.deleteMany({ specialist: id as any }, { session });
 
         // 2️⃣ Delete Specialist Profile
         await Specialist.findByIdAndDelete(id, { session });
