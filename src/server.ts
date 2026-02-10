@@ -4,19 +4,11 @@ import connectDB from "./config/db.ts";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+// В serverless-режиме мы не делаем listen,
+// а просто один раз инициализируем БД
+connectDB().catch((err) => {
+    console.error("Database connection error:", err);
+});
 
-async function startServer() {
-    try {
-        await connectDB();
-
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
-    } catch (error) {
-        console.error("Failed to start server", error);
-        process.exit(1);
-    }
-}
-
-startServer();
+// Экспортируем Express-приложение как функцию
+export default app;
